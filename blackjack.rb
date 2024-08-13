@@ -19,21 +19,22 @@
 # no need to do 5 card limit unless u really wanna
 # hand winner is denoted in console prompt
 
+# TO DOS
+# INCLUDE FACE CARDS & ASSIGN THEM VALUES
+
 # get player's name
 puts "What is your name?" 
 name = gets.chomp
 puts "Hi, #{name}. I'm the dealer. You will be playing 1v1 against me today. Good luck!"
 
-# create player hand
+# create hands & turn
 player_hand = []
-
-# create dealer hand
 dealer_hand = []
+players_turn = true
 
 # create + format deck
 suits = ["♦︎","♣︎","♥︎","♠︎"]
-numbers = [2,3,4,5,6,7,8,9,10,"J","Q","K","A"]
-
+numbers = [2,3,4,5,6,7,8,9,10]
 deck = numbers.product(suits)
 deck_formatted = deck.map { |number,suit| "#{number}#{suit}"}
 
@@ -44,12 +45,17 @@ puts shuffled_deck.inspect
 
 puts "Deck has been shuffled"
 
-# method to draw card
-def draw_card(deck)
-  deck.shift
+# methods to draw card
+def draw_card(turn,deck,hand)
+  hand << deck.shift
+  if turn == true
+    puts "Player Hand: #{hand.inspect}"
+  else
+    puts "Dealer Hand: #{hand.inspect}"
+  end
 end
 
-# method to valuate hand - need to convert face cards to a numerical value
+# method to valuate hand
 def valuate_hand(hand)
   hand.map do |card|
     card.to_i
@@ -58,53 +64,59 @@ end
 
 # deal first card to player
 puts "#{name} - here is your first card."
-dealt_card = draw_card(shuffled_deck)
-player_hand << dealt_card
-puts "Your hand: #{player_hand.inspect}"
+draw_card(players_turn,shuffled_deck,player_hand)
 
 # deal first card to dealer
 puts "Here is my first card."
-dealt_card = draw_card(shuffled_deck)
-dealer_hand << dealt_card
-puts "My hand: #{dealer_hand.inspect}"
-
+players_turn = false
+draw_card(players_turn,shuffled_deck,dealer_hand)
 
 # deal the second card to player
 puts "#{name} - here is your second card."
-dealt_card = draw_card(shuffled_deck)
-player_hand << dealt_card
-puts "Your hand: #{player_hand.inspect}"
-
+players_turn = true
+draw_card(players_turn,shuffled_deck,player_hand)
 
 # deal the second card to dealer
 puts "Here is my second card."
-dealt_card = draw_card(shuffled_deck)
-dealer_hand << dealt_card
-puts "My hand: #{dealer_hand.inspect}"
+players_turn = false
+draw_card(players_turn,shuffled_deck,dealer_hand)
 
-# get player and dealer's total value
+# get player and dealer's starting total values
 player_total = valuate_hand(player_hand)
 dealer_total = valuate_hand(dealer_hand)
 
+# player's turn - hit or stand?
+players_turn = true
 
-# playtime - player goes first - WIP
-while true
+while players_turn == true
   puts "#{player_total} - Hit or Stand?"  
   player_decision = gets.chomp.strip
 
   if player_decision.downcase == "hit"
-    dealt_card = draw_card(shuffled_deck)
-    player_hand << dealt_card
-    puts "Your hand: #{player_hand.inspect}"
-    puts "Total is #{player_total}."
-    if valuate_hand(player_hand) > 21
-      puts "Busted!"
-      break
-    end
-    break
+    draw_card(players_turn,shuffled_deck,player_hand)
+    player_total = valuate_hand(player_hand)
+    puts "You're at #{player_total}."
   elsif player_decision.downcase == "stand"
-    break
+    players_turn = false
   else
     puts "Sorry - I didn't get that. Hit or Stand?"
   end
+end
+
+# dealer's turn - hit until >17
+players_turn = false
+
+while dealer_total <17
+  draw_card(players_turn,shuffled_deck,dealer_hand)
+  dealer_total = valuate_hand(dealer_hand)
+  puts "#{dealer_total}"
+end
+
+# who won?
+if player_total > dealer_total
+  puts "You won!"
+elsif player_total < dealer_total
+  puts "You Lost."
+else
+  puts "Pushed."
 end
