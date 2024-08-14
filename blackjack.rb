@@ -15,7 +15,7 @@ players_turn = true
 
 # create + format deck
 suits = ["♦︎","♣︎","♥︎","♠︎"]
-numbers = [2,3,4,5,6,7,8,9,10]
+numbers = [2,3,4,5,6,7,8,9,10,"J","Q","K","A"]
 deck = numbers.product(suits)
 deck_formatted = deck.map { |number,suit| "#{number}#{suit}"}
 
@@ -41,7 +41,15 @@ end
 # method to valuate hand
 def valuate_hand(hand)
   hand.map do |card|
-    card.to_i
+    value = card[0..-3] # remove the suit first
+
+    if ["J","Q","K"].include?(value) # assign value = 10 to face cards
+      10
+    elsif value == "A" # assign value = 11 to aces
+      11
+    else # assign actual value
+      value.to_i
+    end
   end.sum
 end
 
