@@ -1,6 +1,3 @@
-# TO DOS
-# INCLUDE FACE CARDS & ASSIGN THEM VALUES
-
 # get player's name
 puts "What is your name?" 
 name = gets.chomp
@@ -22,7 +19,6 @@ deck_formatted = deck.map { |number,suit| "#{number}#{suit}"}
 # shuffle deck
 shuffled_deck = deck_formatted.shuffle
 puts "Shuffling deck..."
-puts shuffled_deck.inspect
 
 sleep(1)
 
@@ -51,7 +47,15 @@ def valuate_hand(hand)
       value.to_i
     end
   end.sum
+
+  hand.count { |card| card.include?("A") }.times do # fix sum, replace with end.sum
+    if sum > 21
+      sum -= 10
+    end
+  end
 end
+
+puts valuate_hand(shuffled_deck).inspect
 
 # assign player & dealer total values
 player_total = valuate_hand(player_hand)
