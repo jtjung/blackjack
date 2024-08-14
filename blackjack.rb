@@ -1,24 +1,3 @@
-# [DONE] On start, it asks for your name. It should store this and output it at the end of the game.
-# 3. The game should inform you each turn in next what is happening
-# - Shuffle the deck
-# - deal the player 1 card
-# - deal the dealer 1 card
-# - deal the player a 2nd card
-# - deal the dealer a 2nd card
-
-# For simplicity sake, it's ok that all cards are facing up so we can see the value and the suit
-
-# 4. Create a method where anytime I type the method in console, it will show the deck's remaining contents and order
-# 5. Create a turn mechanism to know who's turn it is. After dealing hands, it is always the players turn
-
-# scoring
-# hit / stand / bust mechanisms
-# turns
-# dealer pushes on tie
-# dealer behavior, will contionue to hit unless +16
-# no need to do 5 card limit unless u really wanna
-# hand winner is denoted in console prompt
-
 # TO DOS
 # INCLUDE FACE CARDS & ASSIGN THEM VALUES
 
@@ -27,7 +6,9 @@ puts "What is your name?"
 name = gets.chomp
 puts "Hi, #{name}. I'm the dealer. You will be playing 1v1 against me today. Good luck!"
 
-# create hands & turn
+sleep(1)
+
+# create hands & turn & total values
 player_hand = []
 dealer_hand = []
 players_turn = true
@@ -42,6 +23,8 @@ deck_formatted = deck.map { |number,suit| "#{number}#{suit}"}
 shuffled_deck = deck_formatted.shuffle
 puts "Shuffling deck..."
 puts shuffled_deck.inspect
+
+sleep(1)
 
 puts "Deck has been shuffled"
 
@@ -62,28 +45,52 @@ def valuate_hand(hand)
   end.sum
 end
 
+# assign player & dealer total values
+player_total = valuate_hand(player_hand)
+dealer_total = valuate_hand(dealer_hand)
+
 # deal first card to player
 puts "#{name} - here is your first card."
 draw_card(players_turn,shuffled_deck,player_hand)
+player_total = valuate_hand(player_hand)
+
+sleep(1)
 
 # deal first card to dealer
 puts "Here is my first card."
 players_turn = false
 draw_card(players_turn,shuffled_deck,dealer_hand)
+dealer_total = valuate_hand(dealer_hand)
+
+sleep(1)
 
 # deal the second card to player
 puts "#{name} - here is your second card."
 players_turn = true
 draw_card(players_turn,shuffled_deck,player_hand)
+player_total = valuate_hand(player_hand)
+
+sleep(1)
+
+# player gets blackjack on the second card
+if player_total == 21
+  puts "Blackjack! You win."
+  exit
+end
 
 # deal the second card to dealer
 puts "Here is my second card."
 players_turn = false
 draw_card(players_turn,shuffled_deck,dealer_hand)
-
-# get player and dealer's starting total values
-player_total = valuate_hand(player_hand)
 dealer_total = valuate_hand(dealer_hand)
+
+sleep(1)
+
+# dealer gets blackjack on the second card
+if dealer_total == 21
+  puts "Blackjack on me. You lose."
+  exit
+end
 
 # player's turn - hit or stand?
 players_turn = true
@@ -92,10 +99,25 @@ while players_turn == true
   puts "#{player_total} - Hit or Stand?"  
   player_decision = gets.chomp.strip
 
+  # player hits
   if player_decision.downcase == "hit"
     draw_card(players_turn,shuffled_deck,player_hand)
     player_total = valuate_hand(player_hand)
-    puts "You're at #{player_total}."
+
+    sleep(1)
+    
+    # player busts
+    if player_total > 21
+      puts "#{player_total} - Busted. Try again."
+      exit
+    elsif player_total < 21
+      puts "You're at #{player_total}."
+    else
+      puts "21 - Good hit! My turn."
+      break
+    end
+    
+  # player stands
   elsif player_decision.downcase == "stand"
     players_turn = false
   else
@@ -110,6 +132,14 @@ while dealer_total <17
   draw_card(players_turn,shuffled_deck,dealer_hand)
   dealer_total = valuate_hand(dealer_hand)
   puts "#{dealer_total}"
+
+  sleep(1)
+
+  # dealer busts
+  if dealer_total > 21
+    puts "Dealer bust. You won!"
+    exit
+  end
 end
 
 # who won?
